@@ -36,7 +36,11 @@ const game = (() => {
 
     // Update board when a move is made
     const update = (i,j,symbol) => {
+        console.log(i,j,symbol);
         board[i][j] = symbol;
+        let square = document.querySelector(`[data-coordinates="${i} ${j}"]`);
+        square.innerHTML = symbol;
+        square.classList.remove('empty');
     }
 
     // Detect full board
@@ -107,7 +111,6 @@ const game = (() => {
     return { board,switchTurns,getTurn,reset,update,boardFull,winner,isOver }
 })();
 
-// PLACEHOLDER FOR PLAYER CONSTRUCTOR AND OBJECTS
 // const Player = (symbol) => {
 //     // To come
 //     return { }
@@ -117,3 +120,55 @@ const game = (() => {
 // PlayerO = Player(X);
 
 
+// Display controller
+document.querySelectorAll("#square").forEach((element) => {
+    if (element.classList.contains("empty")) {
+        element.addEventListener("click",detectMove);
+    }
+});
+
+function detectMove(e) {
+    console.log('Player move detected');
+    let square = e.target;
+    let i = square.dataset.coordinates[0];
+    let j = square.dataset.coordinates[2];
+    // square.classList.remove('empty');
+    console.log(i,j);
+    game.update(i,j,X);
+    console.log(game.board);
+    if (game.isOver()) {
+        alert('You won!');
+    } else {
+        game.switchTurns();
+        computer.move();
+    }
+}
+
+const computer = (() => {
+    let symbol = O;
+    const move = () => {
+        for (let i = 0; i < SIZE; i++) {
+            for (let j = 0; j < SIZE; j++) {
+                if (game.board[i][j] === EMPTY) {
+                    game.update(i,j,symbol);
+                    console.log(game.board);
+                    if (game.isOver()) {
+                        alert('Computer won!');
+                    }
+                    else {
+                        game.switchTurns();
+                    };
+                    return;
+                };
+            };
+        };   
+    };
+    return { move };
+})();
+
+
+// PLACEHOLDER FOR SYMBOL SELECTION INTERFACE
+// const symbolSelector = document.querySelector("#symbolSelector");
+// symbolSelector.onclick = () => {
+
+// }
