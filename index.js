@@ -1,5 +1,5 @@
 const X = 'X';
-const O = '0';
+const O = 'O';
 const EMPTY = "";
 const SIZE = 3;
 
@@ -21,6 +21,7 @@ const game = (() => {
     // Start game
     const startTurn = () => {
         if (turn === player.getSymbol()) {
+            console.log('waiting for player move');
             player.waitForMove();
         } else {
             computer.move();
@@ -30,6 +31,7 @@ const game = (() => {
     // Switch turns
     const switchTurns = () => {
         turn = (turn === X) ? O : X;
+        console.log("turn: ", turn);
         startTurn();
     };
     
@@ -135,6 +137,7 @@ const player = (() => {
     // Listen for click on empty square
     const waitForMove = () => {
         document.querySelectorAll("#square").forEach((element) => {
+            element.removeEventListener("click",move);
             if (element.classList.contains("empty")) {
                 element.addEventListener("click",move);
             }
@@ -143,12 +146,16 @@ const player = (() => {
     
     // When empty square is clicked, update game and check for possible victory
     const move = (e) => {
+        // Prevent player from making a move if computer already won
+        if (game.winner()) {
+            return;
+        }
         console.log('Player move detected');
         let square = e.target;
         let i = square.dataset.coordinates[0];
         let j = square.dataset.coordinates[2];
         console.log("player move: ", i,j);
-        game.update(i,j,X);
+        game.update(i,j,getSymbol());
         if (game.isOver()) {
             alert('You won!');
         } else {
@@ -173,7 +180,8 @@ const computer = (() => {
         for (let i = 0; i < SIZE; i++) {
             for (let j = 0; j < SIZE; j++) {
                 if (game.board[i][j] === EMPTY) {
-                    game.update(i,j,symbol);
+                    console.log('computer move: ', i, j);
+                    game.update(i,j,getSymbol());
                     if (game.isOver()) {
                         console.log('Computer won!');
                     }
