@@ -12,19 +12,24 @@
         <h1>Tic Tac Toe</h1>
     </nav>
     <main>
-        <div>
-            Controls
+        <div class="symbol-selector-area">
+            Choose a symbol:
+            <button class="symbol-selector">X</button>
+            <button class="symbol-selector">O</button>
         </div>
         <div class="board">
-            <div data-coordinates="0 0" id="square" class="square empty">0 0</div>
-            <div data-coordinates="0 1" id="square" class="square empty">0 1</div>
-            <div data-coordinates="0 2" id="square" class="square empty">0 2</div>
-            <div data-coordinates="1 0" id="square" class="square empty">1 0</div>
-            <div data-coordinates="1 1" id="square" class="square empty">1 1</div>
-            <div data-coordinates="1 2" id="square" class="square empty">1 2</div>
-            <div data-coordinates="2 0" id="square" class="square empty">2 0</div>
-            <div data-coordinates="2 1" id="square" class="square empty">2 1</div>
-            <div data-coordinates="2 2" id="square" class="square empty">2 2</div>
+            <div data-coordinates="0 0" id="square" class="square empty"></div>
+            <div data-coordinates="0 1" id="square" class="square empty"></div>
+            <div data-coordinates="0 2" id="square" class="square empty"></div>
+            <div data-coordinates="1 0" id="square" class="square empty"></div>
+            <div data-coordinates="1 1" id="square" class="square empty"></div>
+            <div data-coordinates="1 2" id="square" class="square empty"></div>
+            <div data-coordinates="2 0" id="square" class="square empty"></div>
+            <div data-coordinates="2 1" id="square" class="square empty"></div>
+            <div data-coordinates="2 2" id="square" class="square empty"></div>
+        </div>
+        <div>
+            <button id="reset-button" class="btn reset-button">Reset</button>
         </div>
     </main>
 </body>
