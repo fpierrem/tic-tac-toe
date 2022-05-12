@@ -116,6 +116,7 @@ const game = (() => {
     // Evaluate if game is over
         const isOver = () => {
             if (boardFull() || winner()) {
+                displayController.showModal();
                 return true;
             }
             return false;
@@ -242,7 +243,34 @@ const displayController = (() => {
         showSymbolSelectors();
     };
 
-    return { showSymbolSelectors, hideSymbolSelectors, updateSquare, resetController, clearBoard };
+    const showModal = () => {       
+        let modal = document.getElementById('modal');
+        let message = document.getElementById('game-over-message');
+        modal.style.visibility = "visible";
+        if (game.winner() === computer.getSymbol()) {
+            message.innerHTML = "computer won!"
+        }
+        if (game.winner() === "Tie") {
+            message.innerHTML = "It's a tie!"
+        }
+        if (game.winner() === player.getSymbol()) {
+            message.innerHTML = "You won!"
+        }
+        window.onclick = (event) => {
+            if (event.target === modal) {
+              closeModal();
+            };
+          };
+        };
+
+        const closeModal = () => {
+            let modal = document.getElementById('modal');
+            let message = document.getElementById('game-over-message');
+            modal.style.visibility = "hidden";
+            message.innerHTML = "";                
+        }
+
+    return { showSymbolSelectors, hideSymbolSelectors, updateSquare, resetController, clearBoard, showModal, closeModal };
 
 })(); 
 
