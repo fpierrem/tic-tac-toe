@@ -56,62 +56,11 @@ const game = (() => {
         displayController.updateSquare(i,j,symbol);
     }
 
-    // Detect full board
-    const boardFull = () => {
-        for (let i = 0; i < SIZE; i++) {
-            for (let j = 0; j < SIZE; j++) {
-                if (board[i][j] === EMPTY) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+    // Detect if board is full
+    const boardFull = () => aiDriver.boardFull(board);
 
-    // Detect winner
-    const winner = () => {
-
-        // Define board cols and diags to track possible winner
-        let cols = new Array(SIZE);
-        for (let col = 0; col < SIZE; col++) {
-            cols[col] = new Array(SIZE);
-            for (let row = 0; row < SIZE; row++) {
-                cols[col][row] = board[row][col];
-            }
-        }
-
-        let diags = new Array(2);
-        diags[0] = new Array(board[0][0],board[1][1],board[2][2]);
-        diags[1] = new Array(board[2][0],board[1][1],board[0][2]);
-
-        // Define winning sequence
-        const Xwinner = JSON.stringify([X,X,X]);
-        const Owinner = JSON.stringify([O,O,O]);
-        
-        // Check equality
-        for (let i = 0; i < SIZE ; i++) {
-            if (JSON.stringify(board[i]) === Xwinner || JSON.stringify(cols[i]) === Xwinner) {
-                return X;
-            }
-            if (JSON.stringify(board[i]) === Owinner || JSON.stringify(cols[i]) === Owinner) {
-                return O;
-            }
-        }
-
-        for (let i = 0; i < 2 ; i++) {
-
-            if (JSON.stringify(diags[i]) === Xwinner) {
-                return X;
-            }
-            if (JSON.stringify(diags[i]) === Owinner) {
-                return O;
-            }
-        }
-
-        if (boardFull()) {
-            return "Tie";
-        }
-    }
+    // Detect potential winner
+    const winner = () => aiDriver.winner(board);
 
     // Evaluate if game is over
         const isOver = () => {
@@ -176,24 +125,212 @@ const computer = (() => {
     // Handle computer move
     const move = () => {
         console.log('computer about to make a move');
-        for (let i = 0; i < SIZE; i++) {
-            for (let j = 0; j < SIZE; j++) {
-                if (game.board[i][j] === EMPTY) {
-                    console.log('computer move: ', i, j);
-                    game.update(i,j,getSymbol());
-                    if (game.isOver()) {
-                        console.log('Computer won!');
-                    }
-                    else {
-                        game.switchTurns();
-                    };
-                    return;
-                };
-            };
-        };   
+        let bestMove = aiDriver.minimax(game.board);
+        console.log('best move: ', bestMove);
+        let i = bestMove[0], j = bestMove[1];
+        console.log('computer move: ', i, j);
+        game.update(i,j,getSymbol());
+        if (!game.isOver()) {
+            game.switchTurns();
+        };
+
+        // for (let i = 0; i < SIZE; i++) {
+        //     for (let j = 0; j < SIZE; j++) {
+        //         if (game.board[i][j] === EMPTY) {
+        //             console.log('computer move: ', i, j);
+        //             game.update(i,j,getSymbol());
+        //             if (game.isOver()) {
+        //                 console.log('Computer won!');
+        //             }
+        //             else {
+        //                 game.switchTurns();
+        //             };
+        //             return;
+        //         };
+        //     };
+        // };   
     };
+
     return { move, getSymbol, setSymbol };
 })();
+
+// Functions driving computer moves
+const aiDriver = (() => {
+
+    // Determine whose turn it is by comparing number of X's and O's
+    const turn = (board) => {
+        let countX = 0, countO = 0;
+        for (let i = 0; i < SIZE; i++) {
+            for (let j = 0; j < SIZE; j++) {
+                if (board[i][j] === X) {
+                    countX ++;
+                }
+                if (board[i][j] === O) {
+                    countO ++;
+                }
+            }    
+        }
+        if (countX > countO) {
+            return O;
+        }
+        return X;
+    }
+
+    // List possible moves on a given board
+    const possibleMoves = (board) => {
+        let result = [];
+        for (let i = 0; i < SIZE; i++) {
+            for (let j = 0; j < SIZE; j++) {
+                if (board[i][j] === EMPTY) {
+                    result.push([i,j]);
+                };
+            };
+        };
+        return result;
+    };
+
+    // Determine result of a given move on a given board
+    const result = (board, move) => {
+        let board_copy = JSON.parse(JSON.stringify(board));
+        let i = move[0], j = move[1];
+        board_copy[i][j] = turn(board);
+        return board_copy;
+    };
+
+    // Detect whether a board is full
+    const boardFull = (board) => {
+        for (let i = 0; i < SIZE; i++) {
+            for (let j = 0; j < SIZE; j++) {
+                if (board[i][j] === EMPTY) {
+                    return false;
+                };
+            };
+        };
+        return true;
+    };
+
+    // Detect winner of a given board
+    const winner = (board) => {
+
+        // Define board cols and diags to track possible winner
+        let cols = new Array(SIZE);
+        for (let col = 0; col < SIZE; col++) {
+            cols[col] = new Array(SIZE);
+            for (let row = 0; row < SIZE; row++) {
+                cols[col][row] = board[row][col];
+            };
+        };
+
+        let diags = new Array(2);
+        diags[0] = new Array(board[0][0],board[1][1],board[2][2]);
+        diags[1] = new Array(board[2][0],board[1][1],board[0][2]);
+
+        // Define winning sequence
+        const Xwinner = JSON.stringify([X,X,X]);
+        const Owinner = JSON.stringify([O,O,O]);
+        
+        // Check equality
+        for (let i = 0; i < SIZE ; i++) {
+            if (JSON.stringify(board[i]) === Xwinner || JSON.stringify(cols[i]) === Xwinner) {
+                return X;
+            };
+            if (JSON.stringify(board[i]) === Owinner || JSON.stringify(cols[i]) === Owinner) {
+                return O;
+            };
+        };
+
+        for (let i = 0; i < 2 ; i++) {
+
+            if (JSON.stringify(diags[i]) === Xwinner) {
+                return X;
+            };
+            if (JSON.stringify(diags[i]) === Owinner) {
+                return O;
+            };
+        };
+
+        if (boardFull(board)) {
+            return "Tie";
+        };
+    };
+
+    // Calculates the utility of a final board
+    const utility = (board) => {
+        if (winner(board) == X) {
+            return 1;
+        };
+        if (winner(board) == O) {
+            return -1;
+        };
+        if (boardFull(board)) {
+            return 0;
+        };
+    };
+
+    // Calculates the compounded utility of a board
+    const value = (board) => {
+        if (winner(board) || boardFull(board)) {
+            return utility(board);
+        };
+        let values = [];
+        if (turn(board) === X){
+            for (key in possibleMoves(board)) {
+                let move = possibleMoves(board)[key];
+                let next_board = result(board,move);
+                let v = value(next_board);
+                if (values.length > 0 && v < Math.max(...values)) {
+                    break;
+                };
+                values.push(v);
+            };
+            return Math.max(...values);            
+        };
+        if (turn(board) === O){
+            for (key in possibleMoves(board)) {
+                let move = possibleMoves(board)[key];
+                let next_board = result(board,move);
+                let v = value(next_board);
+                if (values.length > 0 && v > Math.min(...values)) {
+                    break;
+                };
+                values.push(v);
+            };
+            return Math.min(...values);            
+        };
+    };
+    
+    // Determine optimal move on a given board for the current player
+    const minimax = (board) => {
+
+        let bestMove = [];
+
+        if (turn(board) === X) {
+            let bestOutcome = Number.NEGATIVE_INFINITY;
+            for (key in possibleMoves(board)) {
+                let move = possibleMoves(board)[key];
+                let next_board = result(board,move);
+                if (value(next_board) > bestOutcome) {
+                    bestMove = move;
+                    bestOutcome = value(next_board);
+                };
+            };
+        };
+
+        if (turn(board) === O) {
+            let bestOutcome = Number.POSITIVE_INFINITY;
+            for (key in possibleMoves(board)) {
+                let move = possibleMoves(board)[key];
+                let next_board = result(board,move);
+                if (value(next_board) < bestOutcome) {
+                    bestMove = move;
+                    bestOutcome = value(next_board);
+                };
+            };
+        };
+        return bestMove;
+    }
+    return { boardFull,winner,minimax };
+})(); 
 
 
 const displayController = (() => {
