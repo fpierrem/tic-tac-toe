@@ -1,3 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@700;900&family=Open+Sans:wght@300;400;800&family=Rubik:wght@400;700&display=swap');
+
+:root {
+    font-family: 'Open Sans', sans-serif;
+    --shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    background-color: whitesmoke;
+}
+
+* {
+    margin: 0;
+}
+
+.header {
+    background-color:white;
+    box-shadow: var(--shadow);
+    display:flex;
+    align-items: center;
+}
+
+.header > h1 {
+    font-size:40px;
+    font-weight: bold;
+    padding:1.5rem;
+}
+
+.main-container {
+    position:relative;
+    min-height: 80vh;
+    padding-bottom: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    margin-top:1.5rem;
+}
+
 .board {
     margin:1rem;
     display: grid;
@@ -18,3 +52,79 @@
 .square.empty {
     cursor: pointer;
 }
+
+.reset-button {
+    margin:0 auto;
+    background-color:white;
+    box-shadow: var(--shadow);
+    font-size: 22px;
+    font-weight: bolder;
+    padding:0.5rem 1rem;
+    border:none;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+.reset-button:hover {
+    filter: brightness(90%);
+}
+
+.modal {
+    position: fixed;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    background-color:rgba(0,0,0,0.7);
+    visibility: hidden;
+}
+
+.modal-content {
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    width:300px;
+    background-color:rgb(245, 229, 245);
+    border-radius: 10px;
+    padding:1rem;
+}
+
+.modal-title {
+    font-size: 18px;
+    width:90%;
+}
+
+.modal-content > button {
+    background-color: lightgrey;
+    color:black;
+    font-size:18px;
+    font-weight: bolder;
+    border:none;
+    width:90%;
+    padding:0.5rem;
+    box-sizing:content-box;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.modal-content > button:hover {
+    filter: brightness(90%);
+}
+
+footer {
+    position: absolute;
+    bottom: 20px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+footer > a {
+    cursor: pointer;
+}
+
+footer > a:active, a:visited {
+    color: black;
+}
+

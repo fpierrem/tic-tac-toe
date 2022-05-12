@@ -5,18 +5,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.1.1/css/all.css" integrity="sha384-/frq1SRXYH/bSyou/HUp/hib7RVN1TawQYja658FEOodR/FQBKVqT9Ol+Oz3Olq5" crossorigin="anonymous">
     <title>Tic Tac Toe</title>
 </head>
 <body>
-    <nav>
+    <!-- Header -->
+    <header>
         <h1>Tic Tac Toe</h1>
     </nav>
-    <main>
+    <!-- Main container -->
+    <main class="main-container">
+        <!-- Symbol selection area -->
         <div class="symbol-selector-area">
             Choose a symbol:
             <button class="symbol-selector">X</button>
             <button class="symbol-selector">O</button>
         </div>
+        <!-- Game board -->
         <div class="board">
             <div data-coordinates="0 0" id="square" class="square empty"></div>
             <div data-coordinates="0 1" id="square" class="square empty"></div>
@@ -28,8 +33,23 @@
             <div data-coordinates="2 1" id="square" class="square empty"></div>
             <div data-coordinates="2 2" id="square" class="square empty"></div>
         </div>
+        <!-- Reset button area -->
         <div>
-            <button id="reset-button" class="btn reset-button">Reset</button>
+            <button id="reset-button" class="reset-button">Reset</button>
+        </div>
+        <!-- Footer -->
+        <footer>
+            <p>
+                Source code
+                <a href="https://github.com/fpierrem/library" target="_blank"><i class="fa-brands fa-github"></i></a>
+            </p>        
+        </footer>
+        <!-- Game over modal -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <h5 class="modal-title"></h5>
+                <button id="reset-button" class="btn reset-button">New game</button>
+            </div>
         </div>
     </main>
 </body>
