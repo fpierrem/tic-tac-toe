@@ -157,9 +157,7 @@ const player = (() => {
         let j = square.dataset.coordinates[2];
         console.log("player move: ", i,j);
         game.update(i,j,getSymbol());
-        if (game.isOver()) {
-            alert('You won!');
-        } else {
+        if (!game.isOver()) {
             game.switchTurns();
         }
     };
@@ -230,9 +228,13 @@ const displayController = (() => {
 
     // Control reset button
     const resetController = () => {
-        document.querySelector("#reset-button").onclick = () => {
-            game.reset();
-        }
+        document.querySelectorAll("#reset-button").forEach((btn) => {
+            btn.onclick = () => {
+                game.reset();
+                // Calling closeModal for simplicity as the most probable use case is that game is over
+                closeModal();
+            };
+        });
     };
 
     const clearBoard = () => {
