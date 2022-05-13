@@ -1,5 +1,6 @@
 # tic-tac-toe
 
-A Javascript-based tic tac toe game. Play against an AI based on minimax algorithm.
+A Javascript-based tic tac toe game/ Play against an AI that uses the minimax algorithm.
 <br />
-[Live demo](https://fpierrem.github.io/tic-tac-toe/)
+<br />
+[Play here](https://fpierrem.github.io/tic-tac-toe/)
