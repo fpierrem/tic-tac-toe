@@ -24,7 +24,7 @@ const game = (() => {
         if (turn === player.getSymbol()) {
             displayController.waitForPlayerMove();
         } else {
-            displayController.deactivateListeners();
+            displayController.deactivateSquareListeners();
             computer.move();
         }
     }
@@ -304,20 +304,22 @@ const boardCalculator = (() => {
 
 const displayController = (() => {
    
+    const initialPromptArea = document.getElementById("initial-prompt-area");
+    const initialPrompt = document.getElementById("initial-prompt");
     const symbolSelectors = document.querySelectorAll(".symbol-selector");
-    const prompt = document.getElementById("prompt");
+    const inGamePrompt = document.getElementById("in-game-prompt");
     const squares = document.querySelectorAll("#square");
     const resetButtons = document.querySelectorAll("#reset-button");
 
     // Let player pick symbol and then start the game
-    const showSymbolSelectors = () => {
-        deactivateListeners();
+    const showInitialPrompt = () => {
+        deactivateSquareListeners();
+        initialPromptArea.style.visibility = "visible"
         symbolSelectors.forEach((btn) => {
-            btn.style.visibility = "visible";
             btn.onclick = () => {
                 player.setSymbol(btn.innerHTML);
                 computer.setSymbol((player.getSymbol() === X) ? O : X);
-                hideSymbolSelectors();
+                hideInitialPrompt();
                 game.startTurn();
             };
         });
@@ -326,13 +328,15 @@ const displayController = (() => {
     // Update prompt on top of the board
     const updatePrompt = () => {
         if (game.getTurn() === player.getSymbol()) {
-            setTimeout(() => {prompt.innerHTML = "Your turn."}, 300);
+            setTimeout(() => {inGamePrompt.innerHTML = "Your turn."}, 300);
         }
         else if (game.getTurn() === computer.getSymbol()) {            
-            prompt.innerHTML = "Computer's turn."
+            inGamePrompt.innerHTML = "Computer's turn.";
         }
         else {
-            prompt.innerHTML = "Choose a symbol."
+            inGamePrompt.innerHTML = "";
+            inGamePrompt.style.visibility = "hidden";
+            initialPrompt.innerHTML = "Choose a symbol.";
         }
     }
 
@@ -347,17 +351,16 @@ const displayController = (() => {
     };    
 
     // Listen for click on empty square
-    const deactivateListeners = () => {
+    const deactivateSquareListeners = () => {
         squares.forEach((square) => {
             square.removeEventListener("click",player.move);
         });
     };    
 
     // Hide symbol selection area once symbol has been picked by player
-    const hideSymbolSelectors = () => {
-        symbolSelectors.forEach((btn) => {
-            btn.style.visibility = "hidden";
-        });
+    const hideInitialPrompt = () => {
+        initialPromptArea.style.visibility = "hidden";
+        inGamePrompt.style.visibility = "visible";
         // Ensure all squares are now clickable
         squares.forEach((square) => {
             square.classList.add("empty");
@@ -388,7 +391,7 @@ const displayController = (() => {
             square.classList.remove("empty");
         });
         updatePrompt();
-        showSymbolSelectors();
+        showInitialPrompt();
     };
 
     const showModal = () => {       
@@ -418,12 +421,12 @@ const displayController = (() => {
         message.innerHTML = "";                
     }
 
-    return { showSymbolSelectors,updatePrompt,waitForPlayerMove,deactivateListeners,hideSymbolSelectors,updateSquare,resetController,clearBoard,showModal,closeModal };
+    return { showInitialPrompt,updatePrompt,waitForPlayerMove,deactivateSquareListeners,hideInitialPrompt,updateSquare,resetController,clearBoard,showModal,closeModal };
 
 })(); 
 
 // Set up initial display
-displayController.showSymbolSelectors();
+displayController.showInitialPrompt();
 displayController.resetController();
 
 
