@@ -20,10 +20,11 @@ const game = (() => {
     
     // Start game
     const startTurn = () => {
+        displayController.updatePrompt();
         if (turn === player.getSymbol()) {
-            console.log('waiting for player move');
-            player.waitForMove();
+            displayController.waitForPlayerMove();
         } else {
+            displayController.deactivateListeners();
             computer.move();
         }
     }
@@ -31,7 +32,6 @@ const game = (() => {
     // Switch turns
     const switchTurns = () => {
         turn = (turn === X) ? O : X;
-        console.log("turn: ", turn);
         startTurn();
     };
     
@@ -47,6 +47,8 @@ const game = (() => {
             };
         };
         turn = X;  
+        player.setSymbol(undefined);
+        computer.setSymbol(undefined);
         displayController.clearBoard();
     }
 
@@ -54,6 +56,9 @@ const game = (() => {
     const update = (i,j,symbol) => {
         board[i][j] = symbol;
         displayController.updateSquare(i,j,symbol);
+        if (!isOver()) {
+            switchTurns();
+        }
     }
 
     // Detect if board is full
@@ -84,39 +89,25 @@ const player = (() => {
     }
     const getSymbol = () => symbol;
 
-    // Listen for click on empty square
-    const waitForMove = () => {
-        document.querySelectorAll("#square").forEach((element) => {
-            element.removeEventListener("click",move);
-            if (element.classList.contains("empty")) {
-                element.addEventListener("click",move);
-            }
-        });
-    };
-    
     // When empty square is clicked, update game and check for possible victory
     const move = (e) => {
         // Prevent player from making a move if computer already won
         if (game.winner()) {
             return;
         }
-        console.log('Player move detected');
         let square = e.target;
         let i = square.dataset.coordinates[0];
         let j = square.dataset.coordinates[2];
-        console.log("player move: ", i,j);
         game.update(i,j,getSymbol());
-        if (!game.isOver()) {
-            game.switchTurns();
-        }
     };
-    return { getSymbol, setSymbol, waitForMove };
+    return { getSymbol,setSymbol,move };
 })();
 
 // Computer functions
 const computer = (() => {
 
     let symbol;
+
     const setSymbol = (s) => {
         symbol = s;
     }
@@ -124,15 +115,9 @@ const computer = (() => {
 
     // Handle computer move
     const move = () => {
-        console.log('computer about to make a move');
         let bestMove = boardCalculator.minimax(game.board);
-        console.log('best move: ', bestMove);
         let i = bestMove[0], j = bestMove[1];
-        console.log('computer move: ', i, j);
         game.update(i,j,getSymbol());
-        if (!game.isOver()) {
-            game.switchTurns();
-        };
     };
 
     return { move, getSymbol, setSymbol };
@@ -319,28 +304,67 @@ const boardCalculator = (() => {
 
 const displayController = (() => {
    
+    const symbolSelectors = document.querySelectorAll(".symbol-selector");
+    const prompt = document.getElementById("prompt");
+    const squares = document.querySelectorAll("#square");
+    const resetButtons = document.querySelectorAll("#reset-button");
+
     // Let player pick symbol and then start the game
     const showSymbolSelectors = () => {
-        document.querySelectorAll(".symbol-selector").forEach((e) => {
-            document.querySelector('.symbol-selector-area').style.visibility = "visible";
-            e.onclick = () => {
-                player.setSymbol(e.innerHTML);
+        deactivateListeners();
+        symbolSelectors.forEach((btn) => {
+            btn.style.visibility = "visible";
+            btn.onclick = () => {
+                player.setSymbol(btn.innerHTML);
                 computer.setSymbol((player.getSymbol() === X) ? O : X);
-                console.log('player symbol', player.getSymbol());
-                console.log('computer symbol', computer.getSymbol());
                 hideSymbolSelectors();
                 game.startTurn();
             };
         });
     };
 
+    // Update prompt on top of the board
+    const updatePrompt = () => {
+        if (game.getTurn() === player.getSymbol()) {
+            setTimeout(() => {prompt.innerHTML = "Your turn."}, 300);
+        }
+        else if (game.getTurn() === computer.getSymbol()) {            
+            prompt.innerHTML = "Computer's turn."
+        }
+        else {
+            prompt.innerHTML = "Choose a symbol."
+        }
+    }
+
+    // Listen for click on empty square
+    const waitForPlayerMove = () => {
+        squares.forEach((square) => {
+            square.removeEventListener("click",player.move);
+            if (square.classList.contains("empty")) {
+                square.addEventListener("click",player.move);
+            }
+        });
+    };    
+
+    // Listen for click on empty square
+    const deactivateListeners = () => {
+        squares.forEach((square) => {
+            square.removeEventListener("click",player.move);
+        });
+    };    
+
     // Hide symbol selection area once symbol has been picked by player
     const hideSymbolSelectors = () => {
-        document.querySelectorAll(".symbol-selector").forEach(() => {
-            document.querySelector('.symbol-selector-area').style.visibility = "hidden";
+        symbolSelectors.forEach((btn) => {
+            btn.style.visibility = "hidden";
+        });
+        // Ensure all squares are now clickable
+        squares.forEach((square) => {
+            square.classList.add("empty");
         });
     };
-    
+ 
+    // Update content of square
     const updateSquare = (i,j,symbol) => {
         let square = document.querySelector(`[data-coordinates="${i} ${j}"]`);
         square.innerHTML = symbol;
@@ -349,7 +373,7 @@ const displayController = (() => {
 
     // Control reset button
     const resetController = () => {
-        document.querySelectorAll("#reset-button").forEach((btn) => {
+        resetButtons.forEach((btn) => {
             btn.onclick = () => {
                 game.reset();
                 // Calling closeModal for simplicity as the most probable use case is that game is over
@@ -359,10 +383,11 @@ const displayController = (() => {
     };
 
     const clearBoard = () => {
-        document.querySelectorAll("#square").forEach((square) => {
+        squares.forEach((square) => {
             square.innerHTML = "";
-            square.classList.add("empty")
+            square.classList.remove("empty");
         });
+        updatePrompt();
         showSymbolSelectors();
     };
 
@@ -386,18 +411,18 @@ const displayController = (() => {
           };
         };
 
-        const closeModal = () => {
-            let modal = document.getElementById('modal');
-            let message = document.getElementById('game-over-message');
-            modal.style.visibility = "hidden";
-            message.innerHTML = "";                
-        }
+    const closeModal = () => {
+        let modal = document.getElementById('modal');
+        let message = document.getElementById('game-over-message');
+        modal.style.visibility = "hidden";
+        message.innerHTML = "";                
+    }
 
-    return { showSymbolSelectors, hideSymbolSelectors, updateSquare, resetController, clearBoard, showModal, closeModal };
+    return { showSymbolSelectors,updatePrompt,waitForPlayerMove,deactivateListeners,hideSymbolSelectors,updateSquare,resetController,clearBoard,showModal,closeModal };
 
 })(); 
 
-
+// Set up initial display
 displayController.showSymbolSelectors();
 displayController.resetController();
 
