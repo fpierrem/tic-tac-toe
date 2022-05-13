@@ -57,10 +57,10 @@ const game = (() => {
     }
 
     // Detect if board is full
-    const boardFull = () => aiDriver.boardFull(board);
+    const boardFull = () => boardCalculator.boardFull(board);
 
     // Detect potential winner
-    const winner = () => aiDriver.winner(board);
+    const winner = () => boardCalculator.winner(board);
 
     // Evaluate if game is over
         const isOver = () => {
@@ -125,7 +125,7 @@ const computer = (() => {
     // Handle computer move
     const move = () => {
         console.log('computer about to make a move');
-        let bestMove = aiDriver.minimax(game.board);
+        let bestMove = boardCalculator.minimax(game.board);
         console.log('best move: ', bestMove);
         let i = bestMove[0], j = bestMove[1];
         console.log('computer move: ', i, j);
@@ -133,29 +133,13 @@ const computer = (() => {
         if (!game.isOver()) {
             game.switchTurns();
         };
-
-        // for (let i = 0; i < SIZE; i++) {
-        //     for (let j = 0; j < SIZE; j++) {
-        //         if (game.board[i][j] === EMPTY) {
-        //             console.log('computer move: ', i, j);
-        //             game.update(i,j,getSymbol());
-        //             if (game.isOver()) {
-        //                 console.log('Computer won!');
-        //             }
-        //             else {
-        //                 game.switchTurns();
-        //             };
-        //             return;
-        //         };
-        //     };
-        // };   
     };
 
     return { move, getSymbol, setSymbol };
 })();
 
 // Functions driving computer moves
-const aiDriver = (() => {
+const boardCalculator = (() => {
 
     // Determine whose turn it is by comparing number of X's and O's
     const turn = (board) => {
@@ -387,7 +371,7 @@ const displayController = (() => {
         let message = document.getElementById('game-over-message');
         modal.style.visibility = "visible";
         if (game.winner() === computer.getSymbol()) {
-            message.innerHTML = "computer won!"
+            message.innerHTML = "Computer won!"
         }
         if (game.winner() === "Tie") {
             message.innerHTML = "It's a tie!"
